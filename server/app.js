@@ -25,8 +25,7 @@ function proxyRequest(req) {
     const { method, params: { path } } = req
     let reqPath = basePath + path + '?';
     for (let queryParam in req.query) {
-      // TODO sanitize
-      reqPath += `&${queryParam}=${req.query[queryParam]}`;
+      reqPath += `&${encodeURIComponent(queryParam)}=${encodeURIComponent(req.query[queryParam])}`;
     }
     reqPath += '&key=' + apiKey + '&v=2';
 
