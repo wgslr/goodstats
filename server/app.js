@@ -10,6 +10,17 @@ const app = express();
 const port = 3001;
 
 
+function filterObject(keys, source) {
+  return keys.reduce((result, key) => {
+    if (key in source) {
+      console.log(`found ${key}`)
+      result[key] = source[key];
+    }
+    return result
+  }, {});
+}
+
+
 function proxyRequest(req) {
   return new Promise((resolve, reject) => {
     const { method, params: { path } } = req
@@ -18,9 +29,8 @@ function proxyRequest(req) {
       // TODO sanitize
       reqPath += `&${queryParam}=${req.query[queryParam]}`;
     }
-    reqPath += '&key=' + apiKey+ '&v=2';
-    
-    console.log("path: ", reqPath);
+    reqPath += '&key=' + apiKey + '&v=2';
+
     const options = {
       'hostname': GoodReadsHostname,
       'path': reqPath,
@@ -28,17 +38,16 @@ function proxyRequest(req) {
     }
 
     const proxyReq = https.request(options, (res) => {
-      // console.log("res: ", res.url);
-      console.log('statusCode:', res.statusCode);
-      console.log('headers:', res.headers);
-
       let body = '';
-
-      res.on('data', (d) => {
-        body += d;
+      res.on('data', (chunk) => {
+        body += chunk;
       });
       res.on('end', () => {
-        resolve(body);
+        resolve({
+          status: res.statusCode,
+          headers: filterObject(['content-type'], res.headers),
+          body: body
+        });
       });
     });
 
@@ -49,9 +58,14 @@ function proxyRequest(req) {
 }
 
 app.all('/goodreads/:path(*)', async (req, res) => {
-  const result = await proxyRequest(req)
-  // console.log('result', result);
-  res.send(result)
+  try {
+    const { status, headers, body } = await proxyRequest(req)
+    res.status(status)
+    res.set(headers)
+    res.send(body)
+  } catch (err) {
+    console.warn("Caught", err)
+  }
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Goodstats server listening on port ${port}!`))
