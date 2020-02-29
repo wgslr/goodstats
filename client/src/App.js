@@ -5,11 +5,11 @@ import './App.css';
 const SERVER = 'localhost:3001'
 const USER_ID = '29690543';
 
-function listReviewedBooks() {
+function listReviewedBooks(userId) {
   return new Promise((resolve, reject) => {
     console.log("Entered listReviews");
     const xhr = new XMLHttpRequest();
-    const URL = `http://${SERVER}/goodreads/review/list?id=${USER_ID}`;
+    const URL = `http://${SERVER}/goodreads/review/list?id=${userId}`;
 
     const titles = [];
 
@@ -50,26 +50,34 @@ const STATUS = {
 
 function TitlesList() {
   const [
-    { status, details },
+    { status, details, },
     setState
   ] = useState({
     status: STATUS.LOADING,
-    details: undefined
+    details: {},
   });
 
+  const [userId, setUserId] = useState(USER_ID);
+
   useEffect(() => {
-    listReviewedBooks().then(
-      titles => setState({
+    setState(prev => ({
+      ...prev,
+      status: STATUS.LOADING,
+      details: {}
+    }))
+    listReviewedBooks(userId).then(
+      titles => setState(prev => ({
+        ...prev,
         status: STATUS.LOADED,
-        details: { titles: titles, loadTimestamp: new Date() }
-      }),
-      error =>
-        setState({
-          status: STATUS.ERROR,
-          details: { error }
-        })
+        details: { titles, loadTimestamp: new Date() }
+      })),
+      error => setState(prev => ({
+        ...prev,
+        status: STATUS.ERROR,
+        details: { error }
+      }))
     );
-  }, []); // empty dependencies to load just once
+  }, [userId]); // empty dependencies to load just once
 
   let body = '';
   switch (status) {
@@ -91,6 +99,11 @@ function TitlesList() {
 
   return (
     <div>
+      <label>
+        User ID
+      <input type="text" value={userId} onChange={e => setUserId(e.target.value)} />
+      </label>
+
       <h1>Books you have shelved</h1>
       {body}
     </div>
