@@ -15,7 +15,6 @@ function listReviewedBooks() {
 
     xhr.open("GET", URL, true);
     xhr.onload = function (e) {
-      console.log("onload", e)
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           const xml = xhr.responseXML;
@@ -30,44 +29,70 @@ function listReviewedBooks() {
           resolve(titles)
 
         } else {
-          console.error(xhr.statusText);
+          reject(`Server returned ${xhr.status} ${xhr.statusText} response`)
         }
       }
     };
     xhr.onerror = function (e) {
       console.error(xhr.statusText);
+      reject(e)
     };
     xhr.send(null);
   });
 }
 
 
-function TitlesList() {
+const STATUS = {
+  'LOADING': 'loading',
+  'LOADED': 'loaded',
+  'ERROR': 'error',
+}
 
-  const [{ titles, isLoading, loadTimestamp }, setState]
-    = useState({ isLoading: true, titles: undefined, loadTimestamp: 0 });
+function TitlesList() {
+  const [
+    { status, details },
+    setState
+  ] = useState({
+    status: STATUS.LOADING,
+    details: undefined
+  });
 
   useEffect(() => {
     listReviewedBooks().then(
-      titles => {
-        setState(prev => ({ ...prev, titles: titles, isLoading: false, loadTimestamp: new Date() }));
-      },
-      error => console.log('Listing books failed', error)
+      titles => setState({
+        status: STATUS.LOADED,
+        details: { titles: titles, loadTimestamp: new Date() }
+      }),
+      error =>
+        setState({
+          status: STATUS.ERROR,
+          details: { error }
+        })
     );
   }, []); // empty dependencies to load just once
+
+  let body = '';
+  switch (status) {
+    case STATUS.LOADING:
+      body = 'Loading your books...'
+      break;
+    case STATUS.LOADED:
+      const { titles, loadTimestamp } = details;
+      body =
+        <div>
+          <ul>{titles.map(t => <li key={t.toString()}>{t}</li>)}</ul>
+          Loaded at: {loadTimestamp.toString()}
+        </div>
+      break;
+    case STATUS.ERROR:
+      body = 'Loading books failed: ' + details.error;
+      break;
+  }
 
   return (
     <div>
       <h1>Books you have shelved</h1>
-      {
-        isLoading ?
-          "Loading your books..." :
-          <div>
-            <ul>{titles.map(t => <li key={t.toString()}>{t}</li>)}</ul>
-            Loaded at: {loadTimestamp.toString()}
-          </div>
-
-      }
+      {body}
     </div>
   );
 
