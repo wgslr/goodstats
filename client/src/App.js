@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -41,26 +41,44 @@ function listReviewedBooks() {
   });
 }
 
-listReviewedBooks().then(titles => console.log('titles', titles), error => console.log('list failed', error));
+
+function TitlesList() {
+
+  const [{ titles, isLoading, loadTimestamp }, setState]
+    = useState({ isLoading: true, titles: undefined, loadTimestamp: 0 });
+
+  useEffect(() => {
+    listReviewedBooks().then(
+      titles => {
+        setState(prev => ({ ...prev, titles: titles, isLoading: false, loadTimestamp: new Date() }));
+      },
+      error => console.log('Listing books failed', error)
+    );
+  }, []); // empty dependencies to load just once
+
+  return (
+    <div>
+      <h1>Books you have shelved</h1>
+      {
+        isLoading ?
+          "Loading your books..." :
+          <div>
+            <ul>{titles.map(t => <li key={t.toString()}>{t}</li>)}</ul>
+            Loaded at: {loadTimestamp.toString()}
+          </div>
+
+      }
+    </div>
+  );
+
+}
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        {/* <p>Reviews: {await listReviewedBooks()}</p> */}
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <TitlesList />
+
     </div>
   );
 }
