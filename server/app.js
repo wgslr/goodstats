@@ -61,6 +61,7 @@ app.all('/goodreads/:path(*)', async (req, res) => {
     const { status, headers, body } = await proxyRequest(req)
     res.status(status)
     res.set(headers)
+    res.set('Access-Control-Allow-Origin', '*');
     res.send(body)
   } catch (err) {
     console.warn("Caught", err)
