@@ -11,13 +11,12 @@ const port = 3001;
 
 
 function filterObject(keys, source) {
-  return keys.reduce((result, key) => {
-    if (key in source) {
-      console.log(`found ${key}`)
-      result[key] = source[key];
-    }
-    return result
-  }, {});
+  return keys.reduce(
+    (result, key) =>
+      key in source ?
+        { ...result, [key]: source[key] }
+        : result,
+    {});
 }
 
 
