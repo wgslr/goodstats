@@ -4,7 +4,6 @@ import https from 'https';
 import { apiKey } from './secrets.js'
 
 const GoodReadsHostname = 'www.goodreads.com'
-const basePath = '/'
 
 const app = express();
 const port = 3001;
@@ -23,12 +22,12 @@ function filterObject(keys, source) {
 function proxyRequest(req) {
   return new Promise((resolve, reject) => {
     const { method, params: { path } } = req
-    let reqPath = basePath + path + '?';
+    console.debug("Processing request with query params", req.query);
+    let reqPath = path + '?v=2&key=' + apiKey;
     for (let queryParam in req.query) {
       reqPath += `&${encodeURIComponent(queryParam)}=${encodeURIComponent(req.query[queryParam])}`;
     }
-    reqPath += '&key=' + apiKey + '&v=2';
-
+    console.debug("Full request path:", reqPath);
     const options = {
       'hostname': GoodReadsHostname,
       'path': reqPath,
