@@ -11,11 +11,14 @@ class HttpException {
   }
 }
 
+/**
+ * Lists the first page of "reviewed" (shelved) books.
+ */
 export async function listShelvedBooks(userId) {
   const xmlDoc = await get('/review/list', { id: userId, per_page: 30 });
   const { reviews } = parseReviewListResponse(xmlDoc);
 
-  return reviews.map(r => `${r.title}`);
+  return reviews;
 }
 
 
@@ -38,10 +41,8 @@ function parseReviewListResponse(xmlDoc) {
     xmlDoc.documentElement, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null
   );
 
-  console.log(reviewsSnapshot);
   for (let i = 0; i < reviewsSnapshot.snapshotLength; ++i) {
     const review = reviewsSnapshot.snapshotItem(i);
-    console.log({ review });
 
     const shelves = [];
     const shelvesSnapshot = xmlDoc.evaluate('shelves/shelf',
@@ -53,8 +54,6 @@ function parseReviewListResponse(xmlDoc) {
     }
 
     const started = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
-    console.log(started);
-    console.log(started ? parseDate(started) : 'empty');
 
     const startedAt = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
     const readAt = getSingleXmlElement(xmlDoc, review, 'read_at').textContent;
@@ -66,7 +65,6 @@ function parseReviewListResponse(xmlDoc) {
       title: getSingleXmlElement(xmlDoc, review, 'book/title').textContent,
     })
   }
-  console.log(reviews)
 
   return { start, end, total, reviews }
 }
@@ -106,6 +104,5 @@ async function get(path, queryParams) {
   }
   const body = await response.text();
   const doc = (new DOMParser()).parseFromString(body, 'application/xml');
-  console.log("Parsed as ", doc)
   return doc;
 }

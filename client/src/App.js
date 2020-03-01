@@ -11,35 +11,34 @@ const STATUS = {
   'ERROR': 'error',
 }
 
+async function loadBooks(userId, setState) {
+  try {
+    const books = await listShelvedBooks(userId)
+    console.log("books", books);
+    setState({
+      status: STATUS.LOADED,
+      details: { books, loadTimestamp: new Date() }
+    })
+  } catch (error) {
+    setState({
+      status: STATUS.ERROR,
+      details: { error }
+    })
+  }
+}
+
 function TitlesList() {
-  const [
-    { status, details, },
-    setState
-  ] = useState({
+  const [{ status, details }, setState] = useState({
     status: STATUS.LOADING,
     details: {},
   });
 
   const [userId, setUserId] = useState(DEFAULT_USER_ID);
 
+  // @TODO prevent overwriting newer data with a late older request
   useEffect(() => {
-    setState(prev => ({
-      ...prev,
-      status: STATUS.LOADING,
-      details: {}
-    }))
-    listShelvedBooks(userId).then(
-      titles => setState(prev => ({
-        ...prev,
-        status: STATUS.LOADED,
-        details: { titles, loadTimestamp: new Date() }
-      })),
-      error => setState(prev => ({
-        ...prev,
-        status: STATUS.ERROR,
-        details: { error }
-      }))
-    );
+    setState({ status: STATUS.LOADING, details: {} });
+    loadBooks(userId, setState);
   }, [userId]);
 
   let body = '';
@@ -48,10 +47,10 @@ function TitlesList() {
       body = 'Loading your books...'
       break;
     case STATUS.LOADED:
-      const { titles, loadTimestamp } = details;
+      const { books, loadTimestamp } = details;
       body =
         <div>
-          <ul>{titles.map(t => <li key={t.toString()}>{t}</li>)}</ul>
+          <ul>{books.map(b => <li key={b.title}>{b.title}</li>)}</ul>
           Loaded at: {loadTimestamp.toString()}
         </div>
       break;
