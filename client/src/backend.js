@@ -1,6 +1,6 @@
 import {daysBetweenDates} from './utils';
 
-const SERVER = 'localhost:3001'
+const SERVER = 'thawing-eyrie-10510.herokuapp.com'
 
 class HttpException {
   constructor(code, codeText) {
