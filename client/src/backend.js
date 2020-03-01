@@ -98,7 +98,7 @@ function parseDate(string) {
 
 
 async function get(path, queryParams) {
-  const url = new URL(`http://${SERVER}/goodreads/${path}`);
+  const url = new URL(`https://${SERVER}/goodreads${path}`);
   url.search = new URLSearchParams(queryParams).toString();
   const response = await window.fetch(url, { mehod: 'GET', })
   if (!response.ok) {
