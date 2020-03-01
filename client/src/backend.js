@@ -16,8 +16,8 @@ class HttpException {
 /**
  * Lists the first page of "reviewed" (shelved) books.
  */
-export async function listShelvedBooks(userId) {
-  const xmlDoc = await get('/review/list', { id: userId, per_page: 100, sort: 'date_read' });
+export async function listShelvedBooks(userId, maxItems = 30) {
+  const xmlDoc = await get('/review/list', { id: userId, per_page: maxItems, sort: 'date_read' });
   const { reviews } = parseReviewListResponse(xmlDoc);
 
   return reviews;

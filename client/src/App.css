@@ -50,9 +50,18 @@ input{
   display: flex;
 }
 
+.column {
+  margin-left: 3%;
+  margin-right: 3%;
+  flex: 1; 
+}
 
 .timeline .book {
   background-color: aquamarine;
+  box-shadow: 1px;
+  box-sizing: border-box;
+  border: 1px rgb(221, 188, 38) solid;
+
 }
 
 

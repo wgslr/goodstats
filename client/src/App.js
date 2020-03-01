@@ -14,7 +14,7 @@ const STATUS = {
 
 async function loadBooks(userId, setState) {
   try {
-    const books = await listShelvedBooks(userId)
+    const books = await listShelvedBooks(userId, 50)
     console.log("books", books);
     setState({
       status: STATUS.LOADED,
