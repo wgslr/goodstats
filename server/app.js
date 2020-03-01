@@ -35,6 +35,7 @@ function proxyRequest(req) {
     }
 
     const proxyReq = https.request(options, (res) => {
+      console.log(`Goodrads response: ${res.statusCode} ${res.statusMessage}`)
       let body = '';
       res.on('data', (chunk) => {
         body += chunk;
