@@ -1,5 +1,16 @@
 const SERVER = 'localhost:3001'
 
+class HttpException {
+  constructor(code, codeText) {
+    this.code = code;
+    this.codeText = codeText;
+  }
+
+  toString() {
+    return `Server returned ${this.code} ${this.codeText} response`;
+  }
+}
+
 export async function listShelvedBooks(userId) {
   const xmlDoc = await get('/review/list', { id: userId });
   var snapshot = xmlDoc.evaluate('//reviews/review/book/title',
@@ -20,7 +31,7 @@ async function get(path, queryParams) {
   url.search = new URLSearchParams(queryParams).toString();
   const response = await window.fetch(url, { mehod: 'GET', })
   if (!response.ok) {
-    throw (`Server returned ${response.status} ${response.statusText} response`)
+    throw new HttpException(response.status, response.statusText);
   }
   const body = await response.text();
   const doc = (new DOMParser()).parseFromString(body, 'application/xml');

@@ -40,7 +40,7 @@ function TitlesList() {
         details: { error }
       }))
     );
-  }, [userId]); // empty dependencies to load just once
+  }, [userId]);
 
   let body = '';
   switch (status) {
