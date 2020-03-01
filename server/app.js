@@ -6,7 +6,7 @@ import { apiKey } from './secrets.js'
 const GoodReadsHostname = 'www.goodreads.com'
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 80;
 
 
 function filterObject(keys, source) {
