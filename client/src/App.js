@@ -83,7 +83,7 @@ function TitlesList() {
       <input type="text" value={userId} onChange={e => setUserId(e.target.value)} />
       </label>
 
-      <h1>Books you have shelved</h1>
+      <h1>Books you have read</h1>
       {body}
     </div>
   );
@@ -94,6 +94,10 @@ function TitlesList() {
 function App() {
   return (
     <div className="App">
+      <h1>Goodstats</h1>
+      <p>This website uses your data from <a href="https//goodreads.com">Goodreads</a> to display a history of reading.
+      No data is persisted on our servers.
+      </p>
       <TitlesList />
 
     </div>
