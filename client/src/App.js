@@ -17,7 +17,7 @@ async function loadBooks(userId, setState) {
     console.log("books", books);
     setState({
       status: STATUS.LOADED,
-      details: { books, loadTimestamp: new Date() }
+      details: { books: getBooksWithDates(books), loadTimestamp: new Date() }
     })
   } catch (error) {
     setState({
@@ -26,6 +26,14 @@ async function loadBooks(userId, setState) {
     })
   }
 }
+
+
+function getBooksWithDates(books) {
+  return books.filter(book =>
+    book.startedAt instanceof Date && book.readAt instanceof Date
+  )
+}
+
 
 function TitlesList() {
   const [{ status, details }, setState] = useState({
@@ -50,7 +58,11 @@ function TitlesList() {
       const { books, loadTimestamp } = details;
       body =
         <div>
-          <ul>{books.map(b => <li key={b.title}>{b.title}</li>)}</ul>
+          <ul>{books.map(b =>
+            <li key={b.title}>
+              {b.title} (from {b.startedAt.toLocaleDateString()} to {b.readAt.toLocaleDateString()})
+            </li>)}
+          </ul>
           Loaded at: {loadTimestamp.toString()}
         </div>
       break;
