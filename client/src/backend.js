@@ -1,3 +1,5 @@
+import {daysBetweenDates} from './utils';
+
 const SERVER = 'localhost:3001'
 
 class HttpException {
@@ -15,7 +17,7 @@ class HttpException {
  * Lists the first page of "reviewed" (shelved) books.
  */
 export async function listShelvedBooks(userId) {
-  const xmlDoc = await get('/review/list', { id: userId, per_page: 30 });
+  const xmlDoc = await get('/review/list', { id: userId, per_page: 100, sort: 'date_read' });
   const { reviews } = parseReviewListResponse(xmlDoc);
 
   return reviews;
@@ -55,13 +57,14 @@ function parseReviewListResponse(xmlDoc) {
 
     const started = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
 
-    const startedAt = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
-    const readAt = getSingleXmlElement(xmlDoc, review, 'read_at').textContent;
+    let startedAt = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
+    let readAt = getSingleXmlElement(xmlDoc, review, 'read_at').textContent;
+    startedAt = startedAt ? parseDate(startedAt) : null;
+    readAt = readAt ? parseDate(readAt) : null;
+    let days = startedAt && readAt ? daysBetweenDates(startedAt, readAt) : null;
 
     reviews.push({
-      shelves,
-      startedAt: startedAt ? parseDate(startedAt) : null,
-      readAt: readAt ? parseDate(readAt) : null,
+      shelves, startedAt, readAt, days,
       title: getSingleXmlElement(xmlDoc, review, 'book/title').textContent,
     })
   }
@@ -92,7 +95,6 @@ function parseDate(string) {
   }[monthStr];
   return new Date(year, month, day);
 }
-
 
 
 async function get(path, queryParams) {

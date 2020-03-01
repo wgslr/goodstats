@@ -40,3 +40,26 @@ input{
     transform: rotate(360deg);
   }
 }
+
+
+
+.timeline{
+  background-color: #eee;
+  margin: 1em;
+  position: relative;
+  display: flex;
+}
+
+
+.timeline .book {
+  background-color: aquamarine;
+}
+
+
+
+
+
+
+
+
+
