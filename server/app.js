@@ -6,7 +6,7 @@ import { apiKey } from './secrets.js'
 const GoodReadsHostname = 'www.goodreads.com'
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 80;
 
 
 function filterObject(keys, source) {
@@ -23,7 +23,7 @@ function proxyRequest(req) {
   return new Promise((resolve, reject) => {
     const { method, params: { path } } = req
     console.debug("Processing request with query params", req.query);
-    let reqPath = path + '?v=2&key=' + apiKey;
+    let reqPath = "/" + path + '?v=2&key=' + apiKey;
     for (let queryParam in req.query) {
       reqPath += `&${encodeURIComponent(queryParam)}=${encodeURIComponent(req.query[queryParam])}`;
     }
@@ -35,6 +35,7 @@ function proxyRequest(req) {
     }
 
     const proxyReq = https.request(options, (res) => {
+      console.log(`Goodrads response: ${res.statusCode} ${res.statusMessage}`)
       let body = '';
       res.on('data', (chunk) => {
         body += chunk;
