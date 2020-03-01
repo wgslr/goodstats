@@ -14,7 +14,7 @@ const STATUS = {
 
 async function loadBooks(userId, setState) {
   try {
-    const books = await listShelvedBooks(userId, 50)
+    const books = await listShelvedBooks(userId, 40)
     console.log("books", books);
     setState({
       status: STATUS.LOADED,
@@ -60,11 +60,12 @@ function TitlesList() {
       body =
         <div>
           <ul>
-            {books.map(({ title, days, startedAt, readAt }) =>
+            {books.slice(0, 5).map(({ title, days, startedAt, readAt }) =>
               <li key={title}>
                 {title} (read in {days} days - from {startedAt.toLocaleDateString()} to {readAt.toLocaleDateString()})
             </li>
             )}
+            {books.length > 5 && <li>... and more</li>}
           </ul>
           Loaded at: {loadTimestamp.toString()}
 

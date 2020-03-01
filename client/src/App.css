@@ -56,6 +56,11 @@ input{
   flex: 1; 
 }
 
+.timeline .timeAxis {
+  width: 10%;
+  position: relative;
+}
+
 .timeline .book {
   background-color: aquamarine;
   box-shadow: 1px;

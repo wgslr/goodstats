@@ -3,7 +3,8 @@ import React, { } from 'react';
 import { daysBetweenDates } from './utils';
 
 
-const PIXELS_PER_DAY = 10;
+const UNITS_PER_DAY = 1.2;
+const UNIT = 'em';
 
 class Column {
   bottom = 0; // earliest entry
@@ -16,11 +17,23 @@ class Column {
 }
 
 export function Timeline({ books }) {
-  const columns = arrangeColumns(calculateCoords(books));
-  console.log('columns', columns)
+  books = preprocessBooks(books);
+  const { columns, latestDay, datePoints } = arrangeColumns(books);
+  console.log({ columns, latestDay });
   return (
     <div className="timeline">
-      <div className="timeAxis"></div>
+      <div className="timeAxis">
+        {datePoints.map(dp =>
+          <div style={{
+            position: 'absolute',
+            top: `${(dp - latestDay) * UNITS_PER_DAY}${UNIT}`,
+            marginTop: `-0.5em`,
+            lineHeight: '1em',
+          }}>
+            {dp} days ago
+          </div>
+        )}
+      </div>
 
       {
         columns.map((col, idx) =>
@@ -33,12 +46,12 @@ export function Timeline({ books }) {
                   className="book"
                   style={{
                     width: '100%',
-                    height: `${PIXELS_PER_DAY * b.days}px`,
-                    maxHeight: `${PIXELS_PER_DAY * b.days}px`,
+                    height: `${UNITS_PER_DAY * b.days}${UNIT}`,
+                    maxHeight: `${UNITS_PER_DAY * b.days}${UNIT}`,
                     // margin: '1em',
-                    // marginTop: `${PIXELS_PER_DAY * b.readAgo}px`
-                    marginTop: bidx === 0 ? `0px` :
-                      `${(b.readAgo - col.books[bidx - 1].startedAgo)  * PIXELS_PER_DAY}px`
+                    // marginTop: `${UNITS_PER_DAY * b.readAgo}px`
+                    marginTop: bidx === 0 ? `${(b.readAgo - latestDay) * UNITS_PER_DAY}${UNIT}` :
+                      `${((b.readAgo) - col.books[bidx - 1].startedAgo) * UNITS_PER_DAY}${UNIT}`,
 
                   }}>
                   {b.title}
@@ -54,7 +67,7 @@ export function Timeline({ books }) {
 
 // calculates positions in days ago
 // using dates provided in books objects.
-function calculateCoords(books) {
+function preprocessBooks(books) {
   const now = new Date();
   return books.map(b => ({
     ...b,
@@ -69,6 +82,18 @@ function calculateCoords(books) {
  */
 function arrangeColumns(books) {
   const columns = [new Column()];
+  // points in time (in days ago) where a book is started or finished
+  const datePoints = [];
+  let latestDay = 99999;
+
+  books.sort((b1, b2) => {
+    if (b1.readAgo < b2.readAgo) return -1;
+    if (b1.readAgo > b2.readAgo) return 1;
+    if (b1.startedAgo < b2.startedAgo) return -1;
+    if (b1.startedAgo > b2.startedAgo) return 1;
+    return 0;
+  });
+
 
   books.forEach(b => {
     let col = columns.find(c => c.bottom <= b.readAgo);
@@ -77,8 +102,12 @@ function arrangeColumns(books) {
       columns.push(col);
     }
     col.addBook(b)
+    datePoints.includes(b.readAgo) || datePoints.push(b.readAgo);
+    datePoints.includes(b.startedAgo) || datePoints.push(b.startedAgo);
+    latestDay = Math.min(b.readAgo, latestDay);
   });
-  return columns;
+  datePoints.sort((a, b) => a - b)
+  return { columns, latestDay, datePoints };
 }
 
 export default Timeline;
