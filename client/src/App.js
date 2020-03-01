@@ -35,6 +35,13 @@ function getBooksWithDates(books) {
 }
 
 
+function daysBetweenDates(earlier, later) {
+  // Take the difference between the dates and divide by milliseconds per day.
+  // Round to nearest whole number.
+  return Math.round((later - earlier) / (1000 * 60 * 60 * 24));
+}
+
+
 function TitlesList() {
   const [{ status, details }, setState] = useState({
     status: STATUS.LOADING,
@@ -58,10 +65,13 @@ function TitlesList() {
       const { books, loadTimestamp } = details;
       body =
         <div>
-          <ul>{books.map(b =>
-            <li key={b.title}>
-              {b.title} (from {b.startedAt.toLocaleDateString()} to {b.readAt.toLocaleDateString()})
-            </li>)}
+          <ul>
+            {books.map(b => {
+              const days = daysBetweenDates(b.startedAt, b.readAt);
+              return <li key={b.title}>
+                {b.title} (read in {days} days - from {b.startedAt.toLocaleDateString()} to {b.readAt.toLocaleDateString()})
+            </li>
+            })}
           </ul>
           Loaded at: {loadTimestamp.toString()}
         </div>
