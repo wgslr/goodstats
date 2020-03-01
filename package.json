@@ -2,7 +2,7 @@
   "name": "goodstats-server",
   "version": "0.1.0",
   "description": "",
-  "main": "app.js",
+  "main": "server/app.js",
   "type": "module",
   "engines": {
     "node": "v13.9.0"
