@@ -57,10 +57,10 @@ function parseReviewListResponse(xmlDoc) {
 
     const started = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
 
-    let startedAt = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
     let readAt = getSingleXmlElement(xmlDoc, review, 'read_at').textContent;
-    startedAt = startedAt ? parseDate(startedAt) : null;
+    let startedAt = getSingleXmlElement(xmlDoc, review, 'started_at').textContent;
     readAt = readAt ? parseDate(readAt) : null;
+    startedAt = startedAt ? parseDate(startedAt) : readAt;
     let days = startedAt && readAt ? daysBetweenDates(startedAt, readAt) : null;
 
     reviews.push({
